@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+
+.env
+
+data/raw/
+data/processed/
+db/*.duckdb
+db/*.db
+
+.ipynb_checkpoints/
+.idea/
