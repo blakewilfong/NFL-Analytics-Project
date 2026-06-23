@@ -1,15 +1,8 @@
 import nfl_data_py as nfl
-from nfl_analytics.database import get_connection
+from nfl_analytics.database import DB_PATH, get_connection
 
 
 def load_play_by_play(start_year: int = 2024, end_year: int = 2025) -> None:
-    """ Build a list of seasons.
-        Download play-by-play data for those seasons.
-        Open the DuckDB database.
-        Temporarily register the pandas DF with DuckDB.
-        Create or replace the permanent pbp table from that DataFrame.
-        Count how many rows were loaded.
-        Print the result."""
     seasons = list(range(start_year, end_year + 1))
 
     print(f"Loading play-by-play data for seasons: {seasons}")
@@ -30,6 +23,14 @@ def load_play_by_play(start_year: int = 2024, end_year: int = 2025) -> None:
     finally:
         conn.close()
 
+    size_bytes = DB_PATH.stat().st_size
+    size_mb = size_bytes / (1024 ** 2)
+    size_gb = size_bytes / (1024 ** 3)
+
+    print(f"Database size: {size_bytes:,} bytes")
+    print(f"Database size: {size_mb:.2f} MB")
+    print(f"Database size: {size_gb:.4f} GB")
+
 
 if __name__ == "__main__":
-    load_play_by_play(2024, 2025)
+    load_play_by_play(2015, 2025)
