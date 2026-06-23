@@ -1,31 +1,58 @@
 import sqlglot
-from sqlglot import exp
+
+from nfl_analytics.validation.context import ValidationContext
+from nfl_analytics.validation.result import ValidationResult
+from nfl_analytics.validation.rules import (
+    AllowedTablesRule,
+    LimitRequiredRule,
+    MaxLimitRule,
+    NoSelectStarRule,
+    SelectOnlyRule,
+    ValidationRule,
+)
+
+# parses SQL
+# builds context
+# runs rules
+# returns first failure
 
 class SQLValidator:
-    def __init__(self, allowed_tables: set[str]):
+    def __init__(
+        self,
+        allowed_tables: set[str],
+        max_limit: int = 100,
+        rules: list[ValidationRule] | None = None,
+    ):
         self.allowed_tables = allowed_tables
+        self.max_limit = max_limit
+        self.rules = rules or [
+            SelectOnlyRule(),
+            AllowedTablesRule(),
+            NoSelectStarRule(),
+            LimitRequiredRule(),
+            MaxLimitRule(),
+        ]
 
-    def validate(self, sql: str) -> tuple[bool, str]:
+    def validate(self, sql: str) -> ValidationResult:
         try:
             statements = sqlglot.parse(sql, read="duckdb")
         except Exception as e:
-            return False, f"SQL parse error: {e}"
+            return ValidationResult.fail(f"SQL parse error: {e}")
 
         if len(statements) != 1:
-            return False, "Only one SQL statement is allowed."
+            return ValidationResult.fail("Only one SQL statement is allowed.")
 
-        statement = statements[0]
+        context = ValidationContext(
+            sql=sql,
+            statement=statements[0],
+            allowed_tables=self.allowed_tables,
+            max_limit=self.max_limit,
+        )
 
-        if not isinstance(statement, (exp.Select, exp.Union)):
-            return False, "Only SELECT queries are allowed."
+        for rule in self.rules:
+            result = rule.validate(context)
 
-        used_tables = {
-            table.name
-            for table in statement.find_all(exp.Table)
-        }
+            if not result.is_valid:
+                return result
 
-        disallowed_tables = used_tables - self.allowed_tables
-        if disallowed_tables:
-            return False, f"Query uses disallowed tables: {sorted(disallowed_tables)}"
-
-        return True, "SQL is valid."
+        return ValidationResult.ok()
