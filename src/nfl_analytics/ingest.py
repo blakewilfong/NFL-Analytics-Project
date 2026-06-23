@@ -20,6 +20,8 @@ def load_play_by_play(start_year: int = 2024, end_year: int = 2025) -> None:
 
         row_count = conn.execute("SELECT COUNT(*) FROM pbp").fetchone()[0]
         print(f"Loaded {row_count:,} rows into table: pbp")
+
+        conn.execute("CHECKPOINT")
     finally:
         conn.close()
 
@@ -33,4 +35,4 @@ def load_play_by_play(start_year: int = 2024, end_year: int = 2025) -> None:
 
 
 if __name__ == "__main__":
-    load_play_by_play(2015, 2025)
+    load_play_by_play(1999, 2025)
