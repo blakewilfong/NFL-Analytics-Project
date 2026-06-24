@@ -1,7 +1,7 @@
 from nfl_analytics.data.database import get_connection
 from nfl_analytics.data.query_runner import QueryRunner
 from nfl_analytics.data.schema import SchemaService
-from nfl_analytics.sql_validator import SQLValidator
+from nfl_analytics.validation.sql_validator import SQLValidator
 
 
 def read_sql_statement() -> str | None:

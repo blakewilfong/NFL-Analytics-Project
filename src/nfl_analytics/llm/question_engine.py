@@ -5,7 +5,7 @@ import pandas as pd
 from nfl_analytics.data.query_runner import QueryRunner
 from nfl_analytics.data.schema import SchemaService
 from nfl_analytics.llm.sql_generator import SQLGenerator
-from nfl_analytics.sql_validator import SQLValidator
+from nfl_analytics.validation.sql_validator import SQLValidator
 
 
 @dataclass(frozen=True)

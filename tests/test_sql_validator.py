@@ -1,4 +1,4 @@
-from nfl_analytics.sql_validator import SQLValidator
+from nfl_analytics.validation.sql_validator import SQLValidator
 
 
 def make_validator() -> SQLValidator:
