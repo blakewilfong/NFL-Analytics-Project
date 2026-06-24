@@ -2,7 +2,10 @@ from pathlib import Path
 
 import duckdb
 
-DB_PATH = Path("db/nfl.duckdb")
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DB_PATH = PROJECT_ROOT / "db" / "nfl.duckdb"
+
 
 def get_connection() -> duckdb.DuckDBPyConnection:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)

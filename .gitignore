@@ -8,8 +8,11 @@ data/raw/
 data/processed/
 db/*.duckdb
 db/*.db
+*.duckdb.wal
+*.duckdb.tmp
 
 .ipynb_checkpoints/
 .idea/
 
 eval_reports/
+**/eval_reports/

@@ -4,20 +4,15 @@ from nfl_analytics.database import get_connection
 def main() -> None:
     conn = get_connection()
 
-    print("\nTables:")
-    print(conn.execute("SHOW TABLES").fetchdf())
+    df = conn.execute("SELECT * FROM pbp").fetchdf()
 
-    print("\nSchema for pbp:")
-    print(conn.execute("DESCRIBE pbp").fetchdf())
+    before_gb = df.memory_usage(deep=True).sum() / (1024 ** 3)
+    print(f"Before conversion: {before_gb:.2f} GB")
 
-    print("\nFirst 10 rows:")
-    print(conn.execute("SELECT * FROM pbp LIMIT 10").fetchdf())
+    df = df.convert_dtypes(dtype_backend="pyarrow")
 
-    print("\nRow count:")
-    print(conn.execute("SELECT COUNT(*) AS row_count FROM pbp").fetchdf())
-
-    conn.close()
-
+    after_gb = df.memory_usage(deep=True).sum() / (1024 ** 3)
+    print(f"After conversion: {after_gb:.2f} GB")
 
 if __name__ == "__main__":
     main()
