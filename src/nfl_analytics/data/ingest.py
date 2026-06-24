@@ -2,7 +2,7 @@ import nfl_data_py as nfl
 from nfl_analytics.data.database import DB_PATH, get_connection
 
 
-def load_play_by_play(start_year: int = 2024, end_year: int = 2025) -> None:
+def load_play_by_play(start_year: int = 1999, end_year: int = 2025) -> None:
     seasons = list(range(start_year, end_year + 1))
 
     print(f"Loading play-by-play data for seasons: {seasons}")
