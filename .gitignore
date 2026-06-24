@@ -11,3 +11,5 @@ db/*.db
 
 .ipynb_checkpoints/
 .idea/
+
+eval_reports/
