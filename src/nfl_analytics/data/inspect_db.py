@@ -1,4 +1,4 @@
-from nfl_analytics.database import get_connection
+from nfl_analytics.data.database import get_connection
 
 
 def main() -> None:

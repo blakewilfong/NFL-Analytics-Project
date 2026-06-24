@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from nfl_analytics.query_runner import QueryRunner
-from nfl_analytics.schema import SchemaService
+from nfl_analytics.data.query_runner import QueryRunner
+from nfl_analytics.data.schema import SchemaService
 from nfl_analytics.sql_generator import SQLGenerator
 from nfl_analytics.sql_validator import SQLValidator
 

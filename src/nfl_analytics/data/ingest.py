@@ -1,5 +1,5 @@
 import nfl_data_py as nfl
-from nfl_analytics.database import DB_PATH, get_connection
+from nfl_analytics.data.database import DB_PATH, get_connection
 
 
 def load_play_by_play(start_year: int = 2024, end_year: int = 2025) -> None:
