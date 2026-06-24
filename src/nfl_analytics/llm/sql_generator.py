@@ -10,10 +10,15 @@ class SQLGenerator(Protocol):
     def generate_sql(self, question: str, schema_summary: str) -> str:
         pass
 
+    def repair_sql(
+            self,
+            question: str,
+            schema_summary: str,
+            rejected_sql: str,
+            validation_error: str,
+    ) -> str:
+        pass
 
-class FakeSQLGenerator:
-    def generate_sql(self, question: str, schema_summary: str) -> str:
-        raise NotImplementedError("Real SQL generation is not wired in yet.")
 
 
 class OllamaSQLGenerator:
@@ -85,6 +90,69 @@ class OllamaSQLGenerator:
         raw_text = response.json().get("response", "")
         return self._clean_sql(raw_text)
 
+
+    def _strip_sql_comments(self, sql: str) -> str:
+        cleaned_chars = []
+
+        in_single_quote = False
+        in_double_quote = False
+        in_line_comment = False
+        in_block_comment = False
+
+        i = 0
+
+        while i < len(sql):
+            current_char = sql[i]
+            next_char = sql[i + 1] if i + 1 < len(sql) else ""
+
+            if in_line_comment:
+                if current_char == "\n":
+                    in_line_comment = False
+                    cleaned_chars.append(current_char)
+                i += 1
+                continue
+
+            if in_block_comment:
+                if current_char == "*" and next_char == "/":
+                    in_block_comment = False
+                    i += 2
+                else:
+                    i += 1
+                continue
+
+            if not in_single_quote and not in_double_quote:
+                if current_char == "-" and next_char == "-":
+                    in_line_comment = True
+                    i += 2
+                    continue
+
+                if current_char == "/" and next_char == "*":
+                    in_block_comment = True
+                    i += 2
+                    continue
+
+            cleaned_chars.append(current_char)
+
+            if current_char == "'" and not in_double_quote:
+                if in_single_quote and next_char == "'":
+                    cleaned_chars.append(next_char)
+                    i += 2
+                    continue
+
+                in_single_quote = not in_single_quote
+
+            elif current_char == '"' and not in_single_quote:
+                if in_double_quote and next_char == '"':
+                    cleaned_chars.append(next_char)
+                    i += 2
+                    continue
+
+                in_double_quote = not in_double_quote
+
+            i += 1
+
+        return "".join(cleaned_chars).strip()
+
     def _clean_sql(self, text: str) -> str:
         sql = text.strip()
 
@@ -105,6 +173,8 @@ class OllamaSQLGenerator:
 
             if select_match:
                 sql = select_match.group(0).strip()
+
+        sql = self._strip_sql_comments(sql)
 
         if sql.endswith(";"):
             sql = sql[:-1].strip()
