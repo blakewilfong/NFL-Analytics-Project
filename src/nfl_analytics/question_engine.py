@@ -1,9 +1,18 @@
+from dataclasses import dataclass
+
 import pandas as pd
 
 from nfl_analytics.query_runner import QueryRunner
 from nfl_analytics.schema import SchemaService
 from nfl_analytics.sql_generator import SQLGenerator
 from nfl_analytics.sql_validator import SQLValidator
+
+
+@dataclass(frozen=True)
+class QuestionResult:
+    question: str
+    sql: str
+    data: pd.DataFrame
 
 
 class QuestionEngine:
@@ -19,7 +28,7 @@ class QuestionEngine:
         self.sql_validator = sql_validator
         self.query_runner = query_runner
 
-    def answer(self, question: str) -> pd.DataFrame:
+    def answer(self, question: str) -> QuestionResult:
         schema_summary = self.schema_service.build_schema_summary()
 
         sql = self.sql_generator.generate_sql(
@@ -27,9 +36,34 @@ class QuestionEngine:
             schema_summary=schema_summary,
         )
 
-        validation = self.sql_validator.validate(sql)
+        max_attempts = 3
+        last_validation_message = ""
 
-        if not validation.is_valid:
-            raise ValueError(f"Generated SQL was rejected: {validation.message}")
+        for attempt in range(max_attempts):
+            validation = self.sql_validator.validate(sql)
 
-        return self.query_runner.run(sql)
+            if validation.is_valid:
+                data = self.query_runner.run(sql)
+
+                return QuestionResult(
+                    question=question,
+                    sql=sql,
+                    data=data,
+                )
+
+            last_validation_message = validation.message
+
+            if not hasattr(self.sql_generator, "repair_sql"):
+                break
+
+            sql = self.sql_generator.repair_sql(
+                question=question,
+                schema_summary=schema_summary,
+                rejected_sql=sql,
+                validation_error=validation.message,
+            )
+
+        raise ValueError(
+            f"Generated SQL was rejected after {max_attempts} attempts: "
+            f"{last_validation_message}\n\nSQL:\n{sql}"
+        )
