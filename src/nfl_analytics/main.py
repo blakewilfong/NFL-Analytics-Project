@@ -9,11 +9,16 @@ def main() -> None:
 
     try:
         schema_service = SchemaService(conn)
+        allowed_tables = set(schema_service.get_tables())
+
+        validator = SQLValidator(
+            allowed_tables=allowed_tables,
+            max_limit=100,
+        )
+
         query_runner = QueryRunner(conn)
 
-        allowed_tables = set(schema_service.get_tables())
-        validator = SQLValidator(allowed_tables)
-
+        #dummy text for now
         sql = """
             SELECT
                 season,
@@ -21,12 +26,13 @@ def main() -> None:
             FROM pbp
             GROUP BY season
             ORDER BY season
+            LIMIT 100
         """
 
-        is_valid, message = validator.validate(sql)
+        validation = validator.validate(sql)
 
-        if not is_valid:
-            print(f"Rejected query: {message}")
+        if not validation.is_valid:
+            print(f"Rejected query: {validation.message}")
             return
 
         result = query_runner.run(sql)
