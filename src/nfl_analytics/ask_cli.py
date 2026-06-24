@@ -3,9 +3,9 @@ from dotenv import load_dotenv
 
 from nfl_analytics.data.database import get_connection
 from nfl_analytics.data.query_runner import QueryRunner
-from nfl_analytics.question_engine import QuestionEngine
+from nfl_analytics.llm.question_engine import QuestionEngine
 from nfl_analytics.data.schema import SchemaService
-from nfl_analytics.sql_generator import OllamaSQLGenerator
+from nfl_analytics.llm.sql_generator import OllamaSQLGenerator
 from nfl_analytics.sql_validator import SQLValidator
 
 
