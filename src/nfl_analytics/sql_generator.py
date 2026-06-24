@@ -3,7 +3,7 @@ from typing import Protocol
 
 import requests
 
-from nfl_analytics.prompt_builder import PromptBuilder
+from nfl_analytics.prompts.prompt_builder import PromptBuilder
 
 
 class SQLGenerator(Protocol):

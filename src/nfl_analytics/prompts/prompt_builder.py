@@ -1,7 +1,7 @@
-from nfl_analytics.column_metadata import build_column_metadata_summary
-from nfl_analytics.domain_knowledge import DOMAIN_KNOWLEDGE
-from nfl_analytics.prompt_examples import build_sql_examples
-from nfl_analytics.prompt_rules import build_generation_rules, build_repair_rules
+from nfl_analytics.prompts.column_metadata import build_column_metadata_summary
+from nfl_analytics.prompts.domain_knowledge import DOMAIN_KNOWLEDGE
+from nfl_analytics.prompts.prompt_examples import build_sql_examples
+from nfl_analytics.prompts.prompt_rules import build_generation_rules, build_repair_rules
 
 
 COLUMN_METADATA_SUMMARY = build_column_metadata_summary()
